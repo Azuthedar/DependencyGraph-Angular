@@ -197,13 +197,13 @@ export class NodeGraphService {
       node.sources = new Array<graphNode>();
       node.outputs = new Array<graphNode>();
 
+      node.clicked = false;
       element.sources.forEach(source => {
         var sourceNode = new graphNode();
         
         sourceNode.id = source;
 
-        console.log(source);
-
+        sourceNode.clicked = false;
         node.sources.push(sourceNode);
       });
 
@@ -212,14 +212,9 @@ export class NodeGraphService {
 
         outputNode.id = output;
 
-        console.log(output);
-
+        outputNode.clicked = false;
         node.outputs.push(outputNode);
       });
-
-
-      //node.outputs = element.outputs;
-      console.log("Element details: " + element);
       this.graphNodes.push(node);
     });
   }
@@ -227,5 +222,27 @@ export class NodeGraphService {
   getAllNodes() : graphNode[]
   {
     return (this.graphNodes);
+  }
+
+  getAllChildNodes(parentNode : graphNode) : graphNode[]
+  {
+      var allNodes : graphNode[] = new Array<graphNode>();
+
+      allNodes.push(parentNode);
+
+      if (parentNode.sources !== undefined)
+      {
+        parentNode.sources.forEach(source => {
+          allNodes.concat(this.getAllChildNodes(source));
+        });
+      }
+
+      if (parentNode.outputs !== undefined)
+      {
+        parentNode.outputs.forEach(output => {
+          allNodes.concat(this.getAllChildNodes(output));
+        });
+      }
+      return allNodes;
   }
 }

@@ -1,5 +1,6 @@
 export class graphNode {
-    id : String;
+    id : string;
     sources : graphNode[];
     outputs : graphNode[];
+    clicked : Boolean;
 }
