@@ -22,8 +22,8 @@ export class NodeComponent implements OnInit {
   ngOnInit() {
     this.nodeGraphService.createNodes();
     this.allGraphNodes = this.nodeGraphService.getAllNodes();
-    this.screenHeight = 1080
-    this.screenWidth = 1920
+    this.screenHeight = 1920
+    this.screenWidth = 1080
     
     console.log("From (Height)\tInit:\t" + this.screenHeight);
     console.log("From (Width)\tInit:\t" + this.screenWidth)
@@ -54,7 +54,10 @@ export class NodeComponent implements OnInit {
           graph.addNode(outputEle.id + " Output", { label: "Output",
           render: customOutputsRender,
         });
-        graph.addEdge(element.id, outputEle.id + " Output", { directed: true } );
+        graph.addEdge(element.id, outputEle.id + " Output", {
+          directed: true,
+          label: "Creates"
+        } );
       });
       
       element.sources.forEach(sourceEle => {
@@ -66,7 +69,10 @@ export class NodeComponent implements OnInit {
           node.outputs.forEach(outputNode => {
               if (outputNode.id == sourceEle.id)
               {
-                graph.addEdge(sourceEle.id + " Source", outputNode.id + " Output", {directed: true } );
+                graph.addEdge(sourceEle.id + " Source", outputNode.id + " Output", { 
+                  directed: true,
+                  label: "Depends"
+                } );
               }
           })
         })
@@ -97,18 +103,28 @@ export class NodeComponent implements OnInit {
 
       var id = r.text(0, ry * 1.5, n.id).attr( { 'font-size': '0px', 'opacity': 0 } )
       var node = r.ellipse(0, 0, rx , ry).attr( { fill: hexColor, "stroke-width": '0', r: '0px' } )
-      var label = r.text(0, 0, n.label).attr( { fill: "white", 'font-size': labelFontSize + 'px' } )
+      var label = r.text(0, 0, n.label).attr( { fill: "white", 'font-size': labelFontSize + 'px', 'pointer-events': 'none' } )
       var set = r.set()
         .push(node)
         .push(label)
         .push(id)
-        .drag(null, function onStart() { dragging = true }, function onEnd() { dragging = false })
+        //.drag(null, function onStart() { dragging = true; id.attr( { 'font-size': '0px' } ) }, function onEnd() { dragging = false })
+        .mousedown(function() { dragging = true; id.attr( { 'font-size': '0px' })})
+        .mouseup(function() { if (dragging)
+          {
+            dragging = false;
+            id.attr( { 'font-size': idFontSize + 'px' } )
+          }
+        })
         .hover(function mouseIn() {
           if (!dragging)
           {
             id.attr( { 'font-size': idFontSize + 'px' } )
             id.animate({ 'opacity': 1 }, 200)
-            id.toFront()         
+            id.toFront()
+            node.toFront()
+            label.hide()
+            label.toFront()
           }
           else
           {
@@ -118,6 +134,7 @@ export class NodeComponent implements OnInit {
             id.attr( { 'font-size': '0px' } )
             id.animate({ 'opacity': 0 }, 200)
             id.toBack()
+            label.show()
           }
         )
       return set;

@@ -16,7 +16,7 @@ export class NodeGraphService {
     this.jsonData = JSON.parse(`{
       "subProcesses": [
         {
-          "name": "EnrichCollateralProcess",
+          "name": "EnrichCollateral",
           "sources": [
             "SAS_CLN",
             "SAS_REPO",
@@ -29,7 +29,7 @@ export class NodeGraphService {
           ]
         },
         {
-          "name": "EnrichExposureProcess",
+          "name": "EnrichExposure",
           "sources": [
             "CPFExposure",
             "TreasuryExposure",
@@ -47,7 +47,7 @@ export class NodeGraphService {
           ]
         },
         {
-          "name": "ModelInputProcess",
+          "name": "ModelInput",
           "sources": [
             "DataSanityExposure",
             "EnrichedCollateral"
@@ -59,7 +59,7 @@ export class NodeGraphService {
           ]
         },
         {
-          "name": "ModelOutputProcess",
+          "name": "ModelOutput",
           "sources": [
             "ModelOutput",
             "DataSanityExposure",
@@ -70,7 +70,7 @@ export class NodeGraphService {
           ]
         },
         {
-          "name": "VarianceReportProcess",
+          "name": "VarianceReport",
           "sources": [
             "FinalImpairmentExposure"
           ],
@@ -79,14 +79,14 @@ export class NodeGraphService {
           ]
         },
         {
-          "name": "FinalImpairmentExposure_HDFSToWindowsProcess",
+          "name": "FinalImpairmentExposure_HDFSToWindows",
           "sources": [
             "FinalImpairmentExposure"
           ],
           "outputs": []
         },
         {
-          "name": "DisclosureReportProcess",
+          "name": "DisclosureReport",
           "sources": [
             "DisclosureExposureOutput",
             "EnrichedCollateral",
@@ -98,7 +98,7 @@ export class NodeGraphService {
           ]
         },
         {
-          "name": "MonthlyMOTDisclosureProcess",
+          "name": "MonthlyMOTDisclosure",
           "sources": [
             "DisclosureExposure"
           ],
@@ -107,7 +107,7 @@ export class NodeGraphService {
           ]
         },
         {
-          "name": "OpeningMOTDisclosureProcess",
+          "name": "OpeningMOTDisclosure",
           "sources": [
             "DisclosureExposure"
           ],
@@ -116,7 +116,7 @@ export class NodeGraphService {
           ]
         },
         {
-          "name": "YTDMOTDisclosureProcess",
+          "name": "YTDMOTDisclosure",
           "sources": [
             "MonthlyMOTDisclosure"
           ],
@@ -125,56 +125,56 @@ export class NodeGraphService {
           ]
         },
         {
-          "name": "EnrichedExposure_HDFSToWindowsProcess",
+          "name": "EnrichedExposure_HDFSToWindows",
           "sources": [
             "EnrichedExposure"
           ],
           "outputs": []
         },
         {
-          "name": "Disclosure_HDFSToWindowsProcess",
+          "name": "Disclosure_HDFSToWindows",
           "sources": [
             "Disclosure"
           ],
           "outputs": []
         },
         {
-          "name": "YTDMOTDisclosure_HDFSToWindowsProcess",
+          "name": "YTDMOTDisclosure_HDFSToWindows",
           "sources": [
             "YTDMOTDisclosure"
           ],
           "outputs": []
         },
         {
-          "name": "Disclosure_Control_HDFSToWindowsProcess",
+          "name": "Disclosure_Control_HDFSToWindows",
           "sources": [
             "Disclosure_Control"
           ],
           "outputs": []
         },
         {
-          "name": "VarianceReport_HDFSToWindowsProcess",
+          "name": "VarianceReport_HDFSToWindows",
           "sources": [
             "VarianceReport"
           ],
           "outputs": []
         },
         {
-          "name": "ModelInputExposure_HDFSToWindowsProcess",
+          "name": "ModelInputExposure_HDFSToWindows",
           "sources": [
             "ModelInputExposure"
           ],
           "outputs": []
         },
         {
-          "name": "ModelInputCollateral_HDFSToWindowsProcess",
+          "name": "ModelInputCollateral_HDFSToWindows",
           "sources": [
             "ModelInputCollateral"
           ],
           "outputs": []
         },
         {
-          "name": "ModelInputCashflow_HDFSToWindowsProcess",
+          "name": "ModelInputCashflow_HDFSToWindows",
           "sources": [
             "ModelInputCashflow"
           ],
