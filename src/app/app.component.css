@@ -1,0 +1,9 @@
+#app-container {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+}
+
+.flex-item {
+    flex: 0 1 auto;
+}

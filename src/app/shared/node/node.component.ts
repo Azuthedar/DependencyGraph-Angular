@@ -1,7 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input, NgZone } from '@angular/core';
 import { NodeGraphService } from "../../services/node-graph.service";
-import { graphNode } from '../../graphNode';
+import { graphNode } from '../../models/graphNode';
+import { Status } from '../../models/E_Status';
 import * as Dracula from 'graphdracula';
+import { Type } from '../../models/E_Type';
+import { StaticSymbol } from '@angular/compiler';
+import { getHostElement } from '@angular/core/src/render3';
 
 @Component({
   selector: 'app-node',
@@ -11,18 +15,25 @@ import * as Dracula from 'graphdracula';
 
 export class NodeComponent implements OnInit {
   
-  allGraphNodes : graphNode[];
+  
+  @Input()
   screenWidth : number
+  @Input()
   screenHeight : number
+  allGraphNodes : graphNode[];
+  Statuses = Status
+  Types = Type
+  
+  selectedNode : graphNode
 
   constructor(private nodeGraphService : NodeGraphService) { }
 
 
   ngOnInit() {
     this.nodeGraphService.createNodes();
-    this.allGraphNodes = this.nodeGraphService.getAllNodes();
-    this.screenHeight = 1920
-    this.screenWidth = 1080
+    this.nodeGraphService.getAllObservableNodes().subscribe(nodes => this.allGraphNodes = nodes)
+    this.selectedNode = new graphNode()
+    this.selectedNode.id = "Default"
     
     console.log("From (Height)\tInit:\t" + this.screenHeight);
     console.log("From (Width)\tInit:\t" + this.screenWidth)
@@ -37,20 +48,24 @@ export class NodeComponent implements OnInit {
   {
     var graph = new Dracula.Graph();
 
-    var customProcessRender = this.customRender('#555');
-    var customSourcesRender = this.customRender('#0af');
-    var customOutputsRender = this.customRender('#fa0');
-
     document.getElementById('canvas').innerHTML = '';
 
     nodesToDraw.forEach(element => {
+      if (element.id.includes("Enrich")) element.status = Status.Complete
+
+      var customProcessRender = this.customRenderNode(element)
+
       graph.addNode(element.id, {
         label: "Process",
         render: customProcessRender,
       });
 
       element.outputs.forEach(outputEle => {
-          graph.addNode(outputEle.id + " Output", { label: "Output",
+        if (outputEle.id.includes("Exposure")) outputEle.status = Status.Failed
+        
+        var customOutputsRender = this.customRenderNode(outputEle)
+
+        graph.addNode(outputEle.id + " Output", { label: "Output",
           render: customOutputsRender,
         });
         graph.addEdge(element.id, outputEle.id + " Output", {
@@ -60,6 +75,11 @@ export class NodeComponent implements OnInit {
       });
 
       element.sources.forEach(sourceEle => {
+        if (sourceEle.id.includes("Enrich")) sourceEle.status = Status.Invalid
+        else if (sourceEle.id.includes("Disc")) sourceEle.status = Status.Complete
+
+        var customSourcesRender = this.customRenderNode(sourceEle)
+
         graph.addNode(sourceEle.id + " Source", { label: "Source",
           render: customSourcesRender
         });
@@ -85,15 +105,86 @@ export class NodeComponent implements OnInit {
     renderer.draw()
   }
 
-  customRender(hexColor : string)
+  private nodeColor(node : graphNode) : string {
+    var color = ""
+    switch (node.type) {
+      case Type.Process:
+        color = '#555'
+      break ;
+      case Type.Source:
+        color = '#0af'
+      break ;
+      case Type.Output:
+        color = '#fa0'
+      break ;
+    }
+    switch (node.status) {
+      case Status.Complete:
+        color = '#0a0'
+      break ;
+      case Status.InProgress:
+        color = '#808'
+      break ;
+      case Status.Invalid:
+        color = '#faa'
+      break ;
+      case Status.Failed:
+        color = '#a00'
+      break ;
+    }
+    if (color == "")
+      color = '#000'
+    return (color)
+  }
+
+  private customRenderNode(element : graphNode) {
+    return (this.customRender(this.nodeColor(element), element))
+  }
+
+  private determineEnumKey(element) : string {
+    var enumKey = ""
+
+    switch(element.type) {
+      case Type.Process:
+        enumKey = "Process"
+      break ;
+      case Type.Source:
+        enumKey = "Source"
+      break ;
+      case Type.Output:
+        enumKey = "Output"
+      break ;
+    }
+
+    switch(element.status) {
+      case Status.Complete:
+        enumKey = "Complete"
+      break ;
+      case Status.Failed:
+        enumKey = "Failed"
+      break ;
+      case Status.InProgress:
+        enumKey = "InProgress"
+      break ;
+      case Status.Invalid:
+        enumKey = "Invalid"
+      break ;
+    }
+
+    return enumKey
+  }
+
+  private customRender(hexColor : string, element : graphNode = null)
   {
     var screenAreaPixels : number = this.screenWidth * this.screenHeight
+    var innerNodeColor = this.nodeColor
+    var innerDetermineKey = this.determineEnumKey
     //Custom attributes for nodes
     var outerSet = function(r, n)
     {
       var dragging : boolean = false
       var rx : number, ry : number;
-
+      var prevBkgColor = '';
       rx = screenAreaPixels / 64800.648
       ry = rx / 3 * 2
 
@@ -108,10 +199,10 @@ export class NodeComponent implements OnInit {
         .push(node)
         .push(label)
         .push(id)
-        //.drag(null, function onStart() { dragging = true; id.attr( { 'font-size': '0px' } ) }, function onEnd() { dragging = false })
         .mousedown(function()
         {
-          dragging = true; id.attr( { 'font-size': '0px' } )
+          dragging = true
+          id.attr( { 'font-size': '0px' } )
         })
         .mouseup(function() {
           if (dragging)
@@ -129,6 +220,53 @@ export class NodeComponent implements OnInit {
             node.toFront()
             label.hide()
             label.toFront()
+
+            var getEle = document.getElementById('key' + innerDetermineKey(element));
+            prevBkgColor = getEle.style.backgroundColor
+            getEle.style.backgroundColor = 'lightcyan'
+
+            if (element !== undefined && element !== null && element.type == Type.Process) {
+              var sourceStrings = "", outStrings = ""
+              var it = 0
+
+              element.sources.forEach(source => {
+                it++
+                sourceStrings += "<span style='color:" + innerNodeColor(source) + "'>"
+                if (it % 2 == 0)
+                {
+                  sourceStrings += source.id + "</span>,<br/>"
+                }
+                else
+                {
+                  sourceStrings += source.id + "</span>, "
+                }
+              })
+
+              it = 0
+
+              element.outputs.forEach(output => {
+                it++;
+                outStrings += "<span style='color:" + innerNodeColor(output) + "'>"
+                if (it % 2 == 0)
+                {
+                  outStrings += output.id + "</span>,<br/>"
+                }
+                else
+                {
+                  outStrings += output.id + "</span>, "
+                }
+              })
+              
+              document.getElementById('nodeDetails').innerHTML =
+              `<h4>Node</h4>
+                <hr />
+                <strong>Name</strong>: <span style='color:`+ innerNodeColor(element) + `'>`  + element.id + `</span>` +
+              ` <hr />
+                <strong>Sources</strong>: ` +  sourceStrings +
+              ` <hr/>
+                <strong>Outputs</strong>: ` + outStrings
+              document.getElementById('nodeDetails').hidden = false
+            }
           }
           else
           {
@@ -139,6 +277,9 @@ export class NodeComponent implements OnInit {
             id.animate({ 'opacity': 0 }, 200)
             id.toBack()
             label.show()
+            var getEle = document.getElementById('key' + innerDetermineKey(element));
+            getEle.style.backgroundColor = prevBkgColor
+            document.getElementById('nodeDetails').hidden = true
           }
         )
       return set;

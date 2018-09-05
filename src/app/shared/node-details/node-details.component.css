@@ -1,0 +1,101 @@
+.info {
+    max-width: 60%;
+    width: 20%;
+    height: 100%;
+    display: block;
+    position: fixed;
+    text-align: center;
+}
+
+/* .info #colorLegend {
+    float: left;
+    position: relative;
+    background: rgba(200, 200, 200, 1);
+    padding: 1vh;
+    width: 45%;
+    height: 50%;
+    font-size: calc(1vh + 1vh);
+    margin-top: 0.2em;
+    user-select: none;
+} */
+
+.info #colorLegend {
+    background: rgb(229, 224, 255);
+    width: 45%;
+    height: 50%;
+    display: flex;
+    flex: 0 1 auto;
+    flex-direction: column;
+    margin: 0;
+    padding: 1em;
+    user-select: none;
+    font-size: calc(0.7vh + 0.7vw);
+}
+
+.info #colorLegend hr {
+    height: 0.2%;
+    width: 80%;
+}
+
+.info #colorLegend img {
+    float: left;
+    margin-top: auto;
+    margin-bottom: auto;
+    height: 2.5vh;
+    width: 1.25vw;
+    border: none;
+}
+
+.info #colorLegend #Complete {
+    color: white;
+    background-color: #0a0;
+}
+
+.info #colorLegend #InProgress {
+    color: white;
+    background-color: #808;
+}
+
+.info #colorLegend #Failed {
+    color: white;
+    background-color: #a00;
+}
+
+.info #colorLegend #Invalid {
+    color: white;
+    background-color: #faa;
+}
+
+.info #colorLegend #Process {
+    color: white;
+    background-color: #555;
+}
+
+.info #colorLegend #Source {
+    color: white;
+    background-color: #0af;
+}
+
+.info #colorLegend #Output {
+    color: white;
+    background-color: #fa0;
+}
+
+.info #nodeDetails {
+    float: left;
+    position: relative;
+    height: 40%;
+    width: 100%;
+    background-color: rgb(229, 224, 255);
+    margin-top: 0.5em;
+    font-size: calc(0.7vh + 0.7vw);
+}
+
+.info #nodeDetails hr {
+    width: 80%;
+}
+
+.info #nodeDetails #nodeHeader {
+    font-size: calc(1vh + 1vw);
+    font-weight: bold
+}

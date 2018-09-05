@@ -1,0 +1,15 @@
+<div class='info'>
+  <div id="colorLegend">
+    <h3>Legend:</h3>
+    <hr /><hr />
+    <div *ngFor="let status of Statuses.keys()">
+      <span id='key{{status}}'><img id={{status}}/>:&emsp;{{status}}</span>
+      <hr />
+    </div>
+    <div *ngFor="let type of Types.keys()">
+        <span id='key{{type}}'><img id={{type}}/>:&emsp;{{type}}</span>
+      <hr />
+    </div>
+  </div>
+  <div id="nodeDetails" hidden></div>
+</div>

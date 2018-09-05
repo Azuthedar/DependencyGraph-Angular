@@ -1,6 +1,7 @@
-import { Injectable, Input } from '@angular/core';
-import { graphNode } from "../graphNode"
-import * as Dracula from 'graphdracula';
+import { Injectable, Input, Inject } from '@angular/core';
+import { graphNode } from "../models/graphNode"
+import { Type } from '../models/E_Type';
+import { Observable, of, BehaviorSubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -9,7 +10,12 @@ export class NodeGraphService {
 
   private jsonData : JSON;
   private graphNodes : graphNode[];
-  constructor() { }
+
+  public selectedNode : BehaviorSubject<graphNode>
+
+  constructor() {
+      this.selectedNode = new BehaviorSubject<graphNode>(null)
+  }
 
   ngOnInit()
   {
@@ -193,7 +199,7 @@ export class NodeGraphService {
       var node : graphNode = new graphNode();
       
       node.id = element.name;
-    
+      node.type = Type.Process
       node.sources = new Array<graphNode>();
       node.outputs = new Array<graphNode>();
 
@@ -202,8 +208,8 @@ export class NodeGraphService {
         var sourceNode = new graphNode();
         
         sourceNode.id = source;
+        sourceNode.type = Type.Source
 
-        sourceNode.clicked = false;
         node.sources.push(sourceNode);
       });
 
@@ -211,12 +217,16 @@ export class NodeGraphService {
         var outputNode = new graphNode();
 
         outputNode.id = output;
+        outputNode.type = Type.Output
 
-        outputNode.clicked = false;
         node.outputs.push(outputNode);
       });
       this.graphNodes.push(node);
     });
+  }
+
+  getAllObservableNodes() : Observable<graphNode[]> {
+    return of(this.graphNodes)
   }
 
   getAllNodes() : graphNode[]

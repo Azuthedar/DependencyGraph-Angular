@@ -1,4 +1,7 @@
 <div>
-  <div id='canvas'></div>
-  <button (click)="drawAllNodes()">Draw all Nodes</button>
+  <div class="node-container">
+    <app-node-details id="appNodeDetails"></app-node-details>
+    <div id='canvas'></div>
+  </div>
+  <button id="nodeButton" (click)="drawAllNodes()"><span id="buttonText">Draw all Nodes</span></button> 
 </div>
