@@ -1,7 +1,7 @@
 .navigation {
     list-style: none;
     margin: 0;
-    background: gray;
+    background: rgb(170, 24, 47);
     width: 100%;
     display: flex;
     flex-flow: row wrap;
@@ -16,5 +16,5 @@
 }
 
 .navigation a:hover {
-    background-color: rgb(100, 100, 100);
+    background-color: rgb(136, 19, 61);
 }

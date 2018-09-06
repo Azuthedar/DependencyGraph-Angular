@@ -1,11 +1,9 @@
-import { Component, OnInit, Input, NgZone } from '@angular/core';
+import { Component, OnInit, Input, HostListener } from '@angular/core';
 import { NodeGraphService } from "../../services/node-graph.service";
 import { graphNode } from '../../models/graphNode';
 import { Status } from '../../models/E_Status';
 import * as Dracula from 'graphdracula';
 import { Type } from '../../models/E_Type';
-import { StaticSymbol } from '@angular/compiler';
-import { getHostElement } from '@angular/core/src/render3';
 
 @Component({
   selector: 'app-node',
@@ -14,12 +12,12 @@ import { getHostElement } from '@angular/core/src/render3';
 })
 
 export class NodeComponent implements OnInit {
-  
-  
+
   @Input()
   screenWidth : number
   @Input()
   screenHeight : number
+
   allGraphNodes : graphNode[];
   Statuses = Status
   Types = Type
@@ -60,7 +58,7 @@ export class NodeComponent implements OnInit {
         render: customProcessRender,
       });
 
-      element.outputs.forEach(outputEle => {
+      element.outputs.forEach(outputEle => { 
         if (outputEle.id.includes("Exposure")) outputEle.status = Status.Failed
         
         var customOutputsRender = this.customRenderNode(outputEle)
@@ -77,6 +75,7 @@ export class NodeComponent implements OnInit {
       element.sources.forEach(sourceEle => {
         if (sourceEle.id.includes("Enrich")) sourceEle.status = Status.Invalid
         else if (sourceEle.id.includes("Disc")) sourceEle.status = Status.Complete
+        else if (sourceEle.id.includes("CPF")) sourceEle.status = Status.InProgress
 
         var customSourcesRender = this.customRenderNode(sourceEle)
 
@@ -98,12 +97,17 @@ export class NodeComponent implements OnInit {
         graph.addEdge(element.id, sourceEle.id + " Source", {directed: true } );
       });
     });
-    var layouter = new Dracula.Layout.Spring(graph);
+    var layouter = new Dracula.Layout.Spring(graph)
     layouter.layout();
 
-    var renderer = new Dracula.Renderer.Raphael('#canvas', graph, this.screenWidth, this.screenHeight);
+    var renderer = new Dracula.Renderer.Raphael('#canvas', graph, window.innerWidth / 3 * 2, window.innerHeight);
     renderer.draw()
   }
+
+  @HostListener('window:resize')
+  onResize() {
+    this.drawAllNodes();
+}
 
   private nodeColor(node : graphNode) : string {
     var color = ""
@@ -176,9 +180,10 @@ export class NodeComponent implements OnInit {
 
   private customRender(hexColor : string, element : graphNode = null)
   {
-    var screenAreaPixels : number = this.screenWidth * this.screenHeight
+    var screenAreaPixels : number = window.innerHeight * window.innerWidth;
     var innerNodeColor = this.nodeColor
     var innerDetermineKey = this.determineEnumKey
+
     //Custom attributes for nodes
     var outerSet = function(r, n)
     {
@@ -188,10 +193,10 @@ export class NodeComponent implements OnInit {
       rx = screenAreaPixels / 64800.648
       ry = rx / 3 * 2
 
-      var idFontSize : number = screenAreaPixels / 148114.285
+      var idFontSize : number = screenAreaPixels / 98742.87
       var labelFontSize : number = screenAreaPixels / 188509.09
 
-      var id = r.text(0, ry * 1.5, n.id).attr( { 'font-size': '0px', 'opacity': '0' } )
+      var id = r.text(0, ry * 2, n.id).attr( { 'font-size': '0px', 'opacity': '0' } )
       var node = r.ellipse(0, 0, rx , ry).attr( { fill: hexColor, "stroke-width": '0', r: '0px' } )
       var label = r.text(0, 0, n.label).attr( { fill: "white", 'font-size': labelFontSize + 'px'} )
 
@@ -223,7 +228,7 @@ export class NodeComponent implements OnInit {
 
             var getEle = document.getElementById('key' + innerDetermineKey(element));
             prevBkgColor = getEle.style.backgroundColor
-            getEle.style.backgroundColor = 'lightcyan'
+            getEle.style.backgroundColor = 'rgb(239, 119, 32)' //		R: 239 G: 119 B: 32
 
             if (element !== undefined && element !== null && element.type == Type.Process) {
               var sourceStrings = "", outStrings = ""
